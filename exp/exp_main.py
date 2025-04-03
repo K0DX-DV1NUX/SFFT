@@ -33,10 +33,8 @@ class Exp_Main():
         model_dict = {
             'HADL': HADL,
         }
-        model = model_dict[self.args.model].Model(self.args).float()
 
-        # if self.args.use_multi_gpu and self.args.use_gpu:
-        #     model = nn.DataParallel(model, device_ids=self.args.device_ids)
+        model = model_dict[self.args.model].Model(self.args).float()
         return model
 
     def _get_data(self, flag):
@@ -58,7 +56,7 @@ class Exp_Main():
             criterion = nn.MSELoss()
         return criterion
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def Validate(self, vali_data, vali_loader, criterion):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -67,8 +65,8 @@ class Exp_Main():
                 batch_y = batch_y.float().to(self.device)
                 
                 outputs = self.model(batch_x)
-                outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                outputs = outputs[:, -self.args.pred_len:, -1]
+                batch_y = batch_y[:, -self.args.pred_len:, -1].to(self.device)
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
                 loss = criterion(pred, true)
@@ -77,10 +75,9 @@ class Exp_Main():
         self.model.train()
         return total_loss
 
-    def train(self, setting):
+    def Train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
-        test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -132,7 +129,7 @@ class Exp_Main():
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
+            vali_loss = self.Validate(vali_data, vali_loader, criterion)
             #test_loss = self.vali(test_data, test_loader, criterion)
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f}".format(
@@ -141,11 +138,6 @@ class Exp_Main():
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
-
-            if self.args.lradj != 'TST':
-                adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args)
-            else:
-                print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path, map_location="cpu"))
@@ -182,9 +174,6 @@ class Exp_Main():
                 batch_y = batch_y.float().to(self.device)
                 
                 outputs = self.model(batch_x)
-                   
-
-                f_dim = -1 if self.args.features == 'MS' else 0
                 # print(outputs.shape,batch_y.shape)
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)

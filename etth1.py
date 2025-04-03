@@ -30,7 +30,6 @@ def run_experiment():
         "--model", model_name,
         "--data", data_name,
         "--features", "S",
-        "--train_type", "Linear",
         "--seq_len", str(seq_len),
         "--pred_len", str(pred_len),
         "--enc_in", "1",
@@ -43,8 +42,6 @@ def run_experiment():
         "--enable_iDCT", "0",
         "--patience", "6",
         "--des", "Exp",
-        "--regularizer", "1",
-        "--regularization_rate", "0.1",
         "--itr", "1",
         "--batch_size", "32",
         "--learning_rate", "0.01"
