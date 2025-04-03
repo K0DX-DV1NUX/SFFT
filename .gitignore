@@ -175,6 +175,8 @@ cython_debug/
 
 dataset/
 
-checkpoint/
+checkpoints/
 
 results/
+
+.vscode/
