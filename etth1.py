@@ -8,8 +8,8 @@ def run_experiment():
         os.mkdir("./logs")
 
     # Define variables
-    model_name = "HADL"
-    model_id="ETTh1_HADL"
+    model_name = "ModelX"
+    model_id="ETTh1_Modelx"
     root_path_name = "./dataset/"
     data_path_name = "ETTh1.csv"
     model_id_name = "ETTh1"

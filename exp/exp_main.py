@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 #from exp.exp_basic import Exp_Basic
-from models import HADL
+from models import HADL, ModelX
 from utils.tools import EarlyStopping, adjust_learning_rate
 from utils.metrics import metric
 
@@ -32,6 +32,7 @@ class Exp_Main():
     def _build_model(self):
         model_dict = {
             'HADL': HADL,
+            'ModelX': ModelX,
         }
 
         model = model_dict[self.args.model].Model(self.args).float()
@@ -113,7 +114,7 @@ class Exp_Main():
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     
-                loss = criterion(outputs, batch_y)
+                loss = criterion(outputs, batch_y) + self.model.symmetry_regularizer()
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -139,18 +140,18 @@ class Exp_Main():
                 print("Early stopping")
                 break
 
-        best_model_path = path + '/' + 'checkpoint.pth'
-        self.model.load_state_dict(torch.load(best_model_path, map_location="cpu"))
+        # best_model_path = path + '/' + 'checkpoint.pth'
+        # self.model.load_state_dict(torch.load(best_model_path, map_location="cpu"))
 
 
         return self.model
 
-    def test(self, setting, test=0):
+    def Test(self, setting):
         test_data, test_loader = self._get_data(flag='test')
 
-        if test:
-            print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth'), map_location="cpu"))
+       
+        print('loading model')
+        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth'), map_location="cpu"))
 
         preds = []
         trues = []
@@ -159,15 +160,8 @@ class Exp_Main():
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        ## Inputs for FlopCounts for fvncore
-        profile_x = None
-        profile_x_mark = None
-        profile_y_mark = None
-        profile_dec_inp = None
-
         self.model.eval()
-        if self.args.call_structural_reparam and hasattr(self.model, 'structural_reparam'):
-            self.model.structural_reparam()
+
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
@@ -175,14 +169,12 @@ class Exp_Main():
                 
                 outputs = self.model(batch_x)
                 # print(outputs.shape,batch_y.shape)
+                f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
-                if test_data.scale and self.args.inverse:
-                    shape = outputs.shape
-                    outputs = test_data.inverse_transform(outputs.squeeze(0)).reshape(shape)
-                    batch_y = test_data.inverse_transform(batch_y.squeeze(0)).reshape(shape)
+
                 pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
                 true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
 
@@ -191,9 +183,9 @@ class Exp_Main():
                 inputx.append(batch_x.detach().cpu().numpy())
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
-                    if test_data.scale and self.args.inverse:
-                        shape = input.shape
-                        input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
+                    # if test_data.scale and self.args.inverse:
+                    #     shape = input.shape
+                    #     input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     #visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
@@ -218,18 +210,15 @@ class Exp_Main():
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
-        if self.args.model in ("iTransformer"):
-            flops = FlopCountAnalysis(self.model, inputs=(profile_x, profile_x_mark, profile_dec_inp, profile_y_mark)).total()
-        else:
-            flops = FlopCountAnalysis(self.model, profile_x).total()
+        
 
         params = sum(p.numel() for p in self.model.parameters())
         print('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
-        print(f"MACS:{flops}, Params: {params}")
+        print(f"Params: {params}")
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
-        f.write(f"\n MACS:{flops}, Params: {params} ")
+        f.write(f"\n Params: {params} ")
         f.write('\n')
         f.write('\n')
         f.close()
