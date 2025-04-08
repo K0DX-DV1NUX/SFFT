@@ -28,10 +28,10 @@ class Trend(nn.Module):
     
 class Seasonal(nn.Module):
 
-    def __init__(self, seq_len):
+    def __init__(self, seq_len, f_basis):
         super(Seasonal, self).__init__()
         self.seq_len = seq_len
-        self.register_buffer('f_modes', Seasonal._fourier_basis(seq_len))
+        self.register_buffer('f_modes', f_basis)
         self.register_buffer('f_modes_inv', torch.conj(self.f_modes).T)
         
         # Initialize the diagonal to enforce symmetry
@@ -75,8 +75,12 @@ class EncoderBlock(nn.Module):
     def __init__(self, trend_kernel_size, seq_len, seasons):
         super(EncoderBlock, self).__init__()
         self.trend = Trend(kernel_size=trend_kernel_size, stride=1)
+        
+        f_modes = Seasonal._fourier_basis(seq_len*seasons)
+        seasonal_f_modes = [f_modes[i*seq_len:(i+1)*seq_len, i*seq_len:(i+1)*seq_len] for i in range(seasons)]
+        
         self.seasonal_list = nn.ModuleList([
-            Seasonal(seq_len) for _ in range(seasons)
+            Seasonal(seq_len, seasonal_f_modes[_]) for _ in range(seasons)
         ])
 
     # x: [batch_size, channels, seq_len]
@@ -138,7 +142,7 @@ class Model(nn.Module):
         
         encoder_depth = 3
         trend_kernel_size = 25
-        seasons = 6
+        seasons = 3
         self.denoising_encoder = DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons)
         self.pred = nn.Linear(self.seq_len, self.pred_len)
 
