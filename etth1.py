@@ -15,7 +15,7 @@ def run_experiment():
     model_id_name = "ETTh1"
     data_name = "ETTh1"
     rank = 50
-    seq_len = 512
+    seq_len = 200
     pred_len = 96
 
    
@@ -34,7 +34,7 @@ def run_experiment():
         "--pred_len", str(pred_len),
         "--enc_in", "1",
         "--rank", str(rank),
-        "--train_epochs", "50",
+        "--train_epochs", "30",
         "--bias", "1",
         "--enable_Haar", "1",
         "--enable_DCT", "1",
