@@ -48,11 +48,17 @@ parser.add_argument('--bias', type=int, default=1, help='enable bias; True 1 Fal
 parser.add_argument('--regularizer', type=int, default=0, help="initiate regularizer; True 1 False 0")
 parser.add_argument('--regularization_rate', type=float, default=0.1, help="add the rate of L1 regularization.")
 
+# SIRENet
+parser.add_argument('--stride', type=int, default=1, help='stride')
+parser.add_argument('--decomposer_depth', type=int, default=2, help='decomposer depth')
+parser.add_argument('--seasons', type=int, default=3, help='seasons')
+parser.add_argument('--sym_regularizer', type=int, default=1, help='symmetry regularization; True 1 False 0')
+
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
 parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
 parser.add_argument('--patch_len', type=int, default=16, help='patch length')
-parser.add_argument('--stride', type=int, default=8, help='stride')
+#parser.add_argument('--stride', type=int, default=8, help='stride')
 parser.add_argument('--padding_patch', default='end', help='None: None; end: padding on the end')
 parser.add_argument('--revin', type=int, default=1, help='RevIN; True 1 False 0')
 parser.add_argument('--affine', type=int, default=0, help='RevIN-affine; True 1 False 0')

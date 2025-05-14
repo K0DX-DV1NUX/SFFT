@@ -13,12 +13,11 @@ data_path_name=ETTh2.csv
 model_id_name=ETTh2
 data_name=ETTh2
 
-rank=50
 
-for seq_len in 512
+for seq_len in 336 512 720
 do
-for pred_len in 96 192 336 720
-do    
+for pred_len in 24 48 96 192 336 512 720
+do
     python -u run_longExp.py \
       --is_training 1 \
       --individual 0 \
@@ -31,20 +30,20 @@ do
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 7 \
+      --enc_in 1 \
       --train_epochs 50 \
-      --rank $rank \
+      --rank 25 \
       --bias 1 \
-      --enable_Haar 1 \
-      --enable_DCT 1 \
-      --enable_lowrank 1 \
-      --enable_iDCT 0 \
+      --sym_regularizer 1 \
+      --decomposer_depth 2 \
+      --seasons 2 \
+      --kernel_size 50 \
       --patience 10 \
       --des 'Exp' \
-      --regularizer 1 \
-      --regularization_rate 0.1 \
+      --regularizer 0 \
       --itr 1 \
       --batch_size 32 \
       --learning_rate 0.01
 done
 done
+

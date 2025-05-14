@@ -3,6 +3,37 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class LowRank(nn.Module):
+    """
+    Implements a low-rank approximation layer using two smaller weight matrices (A and B).
+    This reduces the number of parameters compared to a full-rank layer.
+    """
+    def __init__(self, in_features, out_features, rank, bias=True):
+        super(LowRank, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.rank = rank
+        self.bias = bias
+
+        # Initialize weight matrices A (in_features x rank) and B (rank x out_features)
+        wA = torch.empty(self.in_features, rank)
+        wB = torch.empty(self.rank, self.out_features)
+        self.A = nn.Parameter(nn.init.kaiming_uniform_(wA))
+        self.B = nn.Parameter(nn.init.kaiming_uniform_(wB))
+
+        # Initialize bias if required
+        if self.bias:
+            wb = torch.empty(self.out_features)
+            self.b = nn.Parameter(nn.init.uniform_(wb))
+
+    def forward(self, x):
+        # Apply low-rank transformation: X * A * B
+        out = x @ self.A
+        out = out @ self.B
+        if self.bias:
+            out += self.b  # Add bias if enabled
+        return out
+
 
 class Trend(nn.Module):
 
@@ -141,12 +172,30 @@ class Model(nn.Module):
         self.seq_len = configs.seq_len  # Input sequence length
         self.pred_len = configs.pred_len  # Prediction horizon
         self.channels = configs.enc_in  # Number of input channels (features)
-        
-        encoder_depth = 3
-        trend_kernel_size = 25
-        seasons = 3
-        self.denoising_encoder = DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons)
-        self.pred = nn.Linear(self.seq_len, self.pred_len)
+        self.individual = configs.individual  # Use separate models per channel
+        encoder_depth = configs.decomposer_depth
+        trend_kernel_size = configs.kernel_size
+        seasons = configs.seasons
+        rank = configs.rank
+
+
+        if self.individual:
+            self.denoising_encoder = nn.ModuleList([
+                DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons) for _ in range(self.channels)
+            ])
+            self.pred = nn.ModuleList([
+                LowRank(in_features=self.seq_len,
+                        out_features=self.pred_len,
+                        rank=rank,
+                        bias=configs.bias) for _ in range(self.channels)
+            ])
+        else:
+
+            self.denoising_encoder = DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons)
+            self.pred = LowRank(in_features=self.seq_len,
+                                out_features=self.pred_len,
+                                rank=rank,
+                                bias=configs.bias)
 
     # x: [batch_size, seq_len, channels] 
     def forward(self, x):
@@ -157,11 +206,16 @@ class Model(nn.Module):
         seq_mean = torch.mean(x, axis=-1, keepdim=True)
         x = x - seq_mean  # Normalize input
 
-        # Apply the denoising encoder
-        x = self.denoising_encoder(x)
+        if self.individual:
+            # Apply the denoising encoder for each channel
+            for i in range(self.channels):
+                x[:, i, :] = self.denoising_encoder[i](x[:, i, :].unsqueeze(1)).squeeze(1)
+                out = self.pred[i](x[:, i, :].unsqueeze(1)).squeeze(1)
+        else:
+            # Apply the denoising encoder
+            x = self.denoising_encoder(x)
+            out = self.pred(x)
 
-        # Compute the prediction
-        out = self.pred(x) # [batch_size, channels, pred_len]
         out = out.permute(0, 2, 1)
         out = out + seq_mean
 
@@ -169,5 +223,12 @@ class Model(nn.Module):
 
     def symmetry_regularizer(self):
         # Compute the symmetry regularization term for the entire model
-        reg = self.denoising_encoder.symmetry_regularizer()
+        reg=0.0
+        if self.individual:
+            # Compute the symmetry regularization term for each channel
+            for i in range(self.channels):
+                reg += self.denoising_encoder[i].symmetry_regularizer()
+        else:
+            # Compute the symmetry regularization term for the entire model
+            reg = self.denoising_encoder.symmetry_regularizer()
         return reg

@@ -206,9 +206,16 @@ class Exp_Main(Exp_Basic):
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     
                     if self.args.regularizer:
-                        loss = criterion(outputs, batch_y) + self.args.regularization_rate * torch.mean(torch.abs(outputs))
+                        reg_loss = self.args.regularization_rate * torch.mean(torch.abs(outputs))
                     else:
-                        loss = criterion(outputs, batch_y) #+ self.model.symmetry_regularizer()
+                        reg_loss = 0.0
+
+                    if self.args.sym_regularizer:
+                        sym_loss = self.model.symmetry_regularizer()
+                    else:
+                        sym_loss = 0.0
+                    
+                    loss = criterion(outputs, batch_y) + reg_loss + sym_loss
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -376,12 +383,15 @@ class Exp_Main(Exp_Basic):
             flops = FlopCountAnalysis(self.model, profile_x).total()
 
         params = sum(p.numel() for p in self.model.parameters())
+        buffers = sum(b.numel() for b in self.model.buffers())
+        model_size_mb = (params + buffers) / 1024 / 1024
         print('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
         print(f"MACS:{flops}, Params: {params}")
         f = open(f"{self.args.model}_result.txt", 'a')
         f.write(setting + "  \n")
+        f.write(f"Decomposer_depth: {self.args.decomposer_depth} kernel-size:{self.args.kernel_size} Seasons:{self.args.seasons} Rank:{self.args.rank} Bias:{self.args.bias} \n")
         f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
-        f.write(f"\n MACS:{flops}, Params: {params} ")
+        f.write(f"\n MACS:{flops}, Params: {params}, Model Size: {model_size_mb}")
         f.write('\n')
         f.write('\n')
         f.close()

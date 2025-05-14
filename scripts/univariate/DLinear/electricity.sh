@@ -12,10 +12,10 @@ model_id_name=Electricity
 data_name=custom
 
 
-for seq_len in 96 192 336 512 720
+for seq_len in 336 512 720
 do
-for pred_len in 24 48 64 96 192 336 720
-do     
+for pred_len in 24 48 96 192 336 512 720
+do  
     python -u run_longExp.py \
       --is_training 1 \
       --individual 1 \
