@@ -52,7 +52,7 @@ parser.add_argument('--regularization_rate', type=float, default=0.1, help="add 
 parser.add_argument('--stride', type=int, default=1, help='stride')
 parser.add_argument('--decomposer_depth', type=int, default=2, help='decomposer depth')
 parser.add_argument('--seasons', type=int, default=3, help='seasons')
-parser.add_argument('--sym_regularizer', type=int, default=1, help='symmetry regularization; True 1 False 0')
+parser.add_argument('--sym_regularizer', type=int, default=0, help='symmetry regularization; True 1 False 0')
 
 # PatchTST
 parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
