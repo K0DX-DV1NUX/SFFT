@@ -5,7 +5,7 @@ fi
 if [ ! -d "./logs/LongForecasting" ]; then
     mkdir ./logs/LongForecasting
 fi
-seq_len=512
+
 model_name=FrNet
 
 root_path_name=./dataset/
@@ -13,8 +13,9 @@ data_path_name=electricity.csv
 model_id_name=Electricity
 data_name=custom
 
-
-for pred_len in 96
+for seq_len in 336 512 720
+do
+for pred_len in 48 96
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -125,7 +126,7 @@ do
       --itr 1 --batch_size 32 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
 done
 
-for pred_len in 720
+for pred_len in 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -160,4 +161,5 @@ do
       --period_list 24 72 48 12\
       --emb 96\
       --itr 1 --batch_size 32 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+done
 done

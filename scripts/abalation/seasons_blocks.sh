@@ -1,21 +1,24 @@
+#!/bin/sh
+
 if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-rank=40
-seq_len=512
-model_name=HADL
-
+model_name=ModelX
 
 root_path_name=./dataset/
 data_path_name=ETTh1.csv
 model_id_name=ETTh1
 data_name=ETTh1
 
-for enable_DCT in 0 1
+seq_len=512
+pred_len=192
+
+
+for depth in 1 3 5 7 
 do
-for pred_len in 96 192 336 720
-do    
+for seasons in 1 3 5 7
+do
     python -u run_longExp.py \
       --is_training 1 \
       --individual 0 \
@@ -24,39 +27,37 @@ do
       --model_id $model_id_name'_'$seq_len'_'$pred_len \
       --model $model_name \
       --data $data_name \
-      --features M \
+      --features S \
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 7 \
-      --train_epochs 100 \
-      --rank $rank \
+      --enc_in 1 \
+      --train_epochs 50 \
+      --rank 30 \
       --bias 1 \
-      --enable_Haar 1 \
-      --enable_DCT $enable_DCT \
-      --enable_lowrank 1 \
-      --enable_iDCT 0 \
-      --patience 20 \
+      --sym_regularizer 1 \
+      --decomposer_depth $depth \
+      --seasons $seasons \
+      --kernel_size 50 \
+      --patience 10 \
       --des 'Exp' \
-      --regularizer 1 \
-      --regularization_rate 0.1 \
+      --regularizer 0 \
       --itr 1 \
       --batch_size 32 \
       --learning_rate 0.01
 done
 done
 
-root_path_name=./dataset/
-data_path_name=weather.csv
-model_id_name=weather
+
+data_path_name=electricity.csv
+model_id_name=Electricity
 data_name=custom
 
 
-
-for enable_DCT in 0 1
+for depth in 1 3 5 7 
 do
-for pred_len in 96 192 336 720
-do    
+for seasons in 1 3 5 7
+do
     python -u run_longExp.py \
       --is_training 1 \
       --individual 0 \
@@ -65,25 +66,23 @@ do
       --model_id $model_id_name'_'$seq_len'_'$pred_len \
       --model $model_name \
       --data $data_name \
-      --features M \
+      --features S \
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 7 \
-      --train_epochs 100 \
-      --rank $rank \
+      --enc_in 1 \
+      --train_epochs 50 \
+      --rank 30 \
       --bias 1 \
-      --enable_Haar 1 \
-      --enable_DCT $enable_DCT \
-      --enable_lowrank 1 \
-      --enable_iDCT 0 \
-      --patience 20 \
+      --sym_regularizer 1 \
+      --decomposer_depth $depth \
+      --seasons $seasons \
+      --kernel_size 50 \
+      --patience 10 \
       --des 'Exp' \
-      --regularizer 1 \
-      --regularization_rate 0.1 \
+      --regularizer 0 \
       --itr 1 \
       --batch_size 32 \
       --learning_rate 0.01
 done
 done
-
