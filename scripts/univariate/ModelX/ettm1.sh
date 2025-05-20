@@ -32,9 +32,9 @@ do
       --rank 30 \
       --bias 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 3 \
+      --decomposer_depth 1 \
       --seasons 5 \
-      --kernel_size 50 \
+      --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \
       --regularizer 0 \

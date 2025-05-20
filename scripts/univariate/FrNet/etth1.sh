@@ -13,7 +13,10 @@ data_path_name=ETTh1.csv
 model_id_name=ETTh1
 data_name=ETTh1
 
-for pred_len in 96
+
+for seq_len in 336 512 720
+do
+for pred_len in 48 96
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -87,7 +90,7 @@ do
       --itr 1 --batch_size 128 --learning_rate 0.0005
 done
 
-for pred_len in 336
+for pred_len in 336 512
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -159,4 +162,5 @@ do
       --period_list 24 48 72\
       --emb 96\
       --itr 1 --batch_size 128 --learning_rate 0.0005 
+done
 done

@@ -15,7 +15,10 @@ data_path_name=ETTm1.csv
 model_id_name=ETTm1
 data_name=ETTm1
 
-for pred_len in 96
+
+for seq_len in 336 512 720
+do
+for pred_len in 48 96
 do
     python -u run_longExp.py \
       --is_training 2 \
@@ -89,7 +92,7 @@ do
       --itr 1 --batch_size 128 --learning_rate 0.01 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
 done
 
-for pred_len in 336
+for pred_len in 336 512
 do
     python -u run_longExp.py \
       --is_training 2 \
@@ -161,4 +164,5 @@ do
       --period_list 96 4 24 12\
       --emb 96\
       --itr 1 --batch_size 128 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+done
 done

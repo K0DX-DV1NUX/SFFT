@@ -27,12 +27,12 @@ do
       --pred_len $pred_len \
       --enc_in 1 \
       --train_epochs 50 \
-      --rank 25 \
-      --bias 1 \
+      --rank 35 \
+      --bias 0 \
       --sym_regularizer 1 \
-      --decomposer_depth 2 \
-      --seasons 2 \
-      --kernel_size 50 \
+      --decomposer_depth 1 \
+      --seasons 3 \
+      --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \
       --regularizer 0 \

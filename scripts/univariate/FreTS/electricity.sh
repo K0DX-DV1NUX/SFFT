@@ -11,9 +11,9 @@ data_path_name=electricity.csv
 model_id_name=Electricity
 data_name=custom
 
-for seq_len in 512
+for seq_len in 336
 do
-for pred_len in 96 192 336 720
+for pred_len in 48 96 192 336 512 720
 do    
     python -u run_longExp.py \
       --is_training 1 \
@@ -27,7 +27,7 @@ do
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 321 \
+      --enc_in 1 \
       --train_epochs 50 \
       --patience 10 \
       --des 'Exp' \

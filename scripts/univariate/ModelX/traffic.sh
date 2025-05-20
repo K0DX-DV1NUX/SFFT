@@ -30,11 +30,11 @@ do
       --enc_in 1 \
       --train_epochs 50 \
       --rank 35 \
-      --bias 1 \
+      --bias 0 \
       --sym_regularizer 1 \
-      --decomposer_depth 6 \
+      --decomposer_depth 1 \
       --seasons 5 \
-      --kernel_size 50 \
+      --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \
       --regularizer 0 \
