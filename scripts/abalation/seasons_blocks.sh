@@ -15,9 +15,9 @@ seq_len=512
 pred_len=192
 
 
-for depth in 1 3 5 7 
+for depth in 1 2 3 
 do
-for seasons in 1 3 5 7
+for seasons in 1 2 3 4 5 
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -32,14 +32,14 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
+      --train_epochs 30 \
       --rank 30 \
       --bias 1 \
       --sym_regularizer 1 \
       --decomposer_depth $depth \
       --seasons $seasons \
       --kernel_size 50 \
-      --patience 10 \
+      --patience 6 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \
@@ -49,14 +49,15 @@ done
 done
 
 
-data_path_name=electricity.csv
-model_id_name=Electricity
-data_name=custom
+root_path_name=./dataset/
+data_path_name=ETTh2.csv
+model_id_name=ETTh2
+data_name=ETTh2
 
 
-for depth in 1 3 5 7 
+for depth in 1 2 3 
 do
-for seasons in 1 3 5 7
+for seasons in 1 2 3 4 5
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -71,14 +72,14 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
+      --train_epochs 30 \
       --rank 30 \
       --bias 1 \
       --sym_regularizer 1 \
       --decomposer_depth $depth \
       --seasons $seasons \
       --kernel_size 50 \
-      --patience 10 \
+      --patience 6 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \

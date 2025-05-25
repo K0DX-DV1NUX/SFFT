@@ -51,5 +51,6 @@ do
       --global_freq_pred 0\
       --period_list 24 12\
       --emb 96\
-      --itr 1 --batch_size 16 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+      --itr 1 --batch_size 16 --learning_rate 0.0003
+done
 done

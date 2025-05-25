@@ -30,14 +30,14 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
+      --train_epochs 30 \
       --rank $rank \
-      --bias 1 \
+      --bias 0 \
       --sym_regularizer 1 \
-      --decomposer_depth 1 \
-      --seasons 1 \
+      --decomposer_depth 2 \
+      --seasons 3 \
       --kernel_size 50 \
-      --patience 10 \
+      --patience 6 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \
@@ -47,9 +47,9 @@ done
 
 
 
-data_path_name=electricity.csv
-model_id_name=Electricity
-data_name=custom
+data_path_name=ETTh2.csv
+model_id_name=ETTh2
+data_name=ETTh2
 
 
 for rank in 25 35 45 55 65 75
@@ -67,14 +67,14 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
+      --train_epochs 30 \
       --rank $rank \
       --bias 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 1 \
-      --seasons 1 \
+      --decomposer_depth 2 \
+      --seasons 3 \
       --kernel_size 50 \
-      --patience 10 \
+      --patience 6 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \

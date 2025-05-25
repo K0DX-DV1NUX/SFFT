@@ -4,17 +4,18 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-model_name=SparseTSF
+model_name=ModelX2
 
 root_path_name=./dataset/
-data_path_name=weather.csv
-model_id_name=weather
+data_path_name=electricity.csv
+model_id_name=Electricity
 data_name=custom
 
-for seq_len in 512
+
+for seq_len in 336 512 720
 do
-for pred_len in 96 192 336 720
-do    
+for pred_len in 48 96 192 336 512 720
+do
     python -u run_longExp.py \
       --is_training 1 \
       --individual 0 \
@@ -27,16 +28,20 @@ do
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --period_len 16 \
-      --enc_in 21 \
+      --enc_in 1 \
       --train_epochs 50 \
+      --rank 35 \
+      --bias 0 \
+      --sym_regularizer 1 \
+      --decomposer_depth 2 \
+      --seasons 7 \
+      --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \
-      --model_type 'linear' \
-      --itr 1 --batch_size 32 --learning_rate 0.01
+      --regularizer 0 \
+      --itr 1 \
+      --batch_size 32 \
+      --learning_rate 0.01
 done
 done
-
-#model_type 'mlp'
-#d_model 128
-#
+done

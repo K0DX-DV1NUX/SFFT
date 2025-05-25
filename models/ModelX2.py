@@ -2,7 +2,36 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class LowRank(nn.Module):
+    """
+    Implements a low-rank approximation layer using two smaller weight matrices (A and B).
+    This reduces the number of parameters compared to a full-rank layer.
+    """
+    def __init__(self, in_features, out_features, rank, bias=True):
+        super(LowRank, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.rank = rank
+        self.bias = bias
 
+        # Initialize weight matrices A (in_features x rank) and B (rank x out_features)
+        wA = torch.empty(self.in_features, rank)
+        wB = torch.empty(self.rank, self.out_features)
+        self.A = nn.Parameter(nn.init.kaiming_uniform_(wA))
+        self.B = nn.Parameter(nn.init.kaiming_uniform_(wB))
+
+        # Initialize bias if required
+        if self.bias:
+            wb = torch.empty(self.out_features)
+            self.b = nn.Parameter(nn.init.uniform_(wb))
+
+    def forward(self, x):
+        # Apply low-rank transformation: X * A * B
+        out = x @ self.A
+        out = out @ self.B
+        if self.bias:
+            out += self.b  # Add bias if enabled
+        return out
 
 # === Trend Extraction via Moving Average ===
 class TrendExtractor(nn.Module):
@@ -78,12 +107,9 @@ class SeasonalExtractor(nn.Module):
         """
         Computes regularization loss to enforce symmetry of convolution kernels.
         """
-        loss = 0.0
         kernel = self.season.weight  # shape: [C, 1, K]
         flipped = torch.flip(kernel, dims=[-1])  # flip over kernel dimension
-        diff = kernel - flipped
-        loss = 0.5 * torch.sum(diff ** 2)  # sum over all elements
-        return loss
+        return (kernel - flipped).norm(p=2)
 
 
 # === One-Layer Encoder Block: Trend + Multiple Seasonals ===
@@ -149,6 +175,11 @@ class Model(nn.Module):
         encoder_depth = 3
         trend_kernel_size = 25
         num_seasonals = 3
+
+        encoder_depth = configs.decomposer_depth
+        trend_kernel_size = configs.kernel_size
+        num_seasons = configs.seasons
+        rank = configs.rank
 
         # Denoising module
         self.encoder = DenoisingStack(num_blocks=encoder_depth,

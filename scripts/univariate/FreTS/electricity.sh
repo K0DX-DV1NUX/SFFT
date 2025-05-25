@@ -11,7 +11,7 @@ data_path_name=electricity.csv
 model_id_name=Electricity
 data_name=custom
 
-for seq_len in 336
+for seq_len in 96
 do
 for pred_len in 48 96 192 336 512 720
 do    

@@ -11,7 +11,7 @@ data_path_name=ETTm2.csv
 model_id_name=ETTm2
 data_name=ETTm2
 
-for seq_len in 336
+for seq_len in 96
 do
 for pred_len in 48 96 192 336 512 720
 do    
