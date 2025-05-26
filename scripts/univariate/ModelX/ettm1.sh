@@ -11,9 +11,9 @@ data_path_name=ETTm1.csv
 model_id_name=ETTm1
 data_name=ETTm1
 
-for seq_len in 336 512 720
-do
 for pred_len in 48 96 192 336 512 720
+do
+for seq_len in 336 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -31,9 +31,10 @@ do
       --train_epochs 50 \
       --rank 30 \
       --bias 1 \
+      --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 1 \
-      --seasons 5 \
+      --decomposer_depth 3 \
+      --seasons 1 \
       --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \

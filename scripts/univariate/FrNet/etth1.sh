@@ -14,7 +14,7 @@ model_id_name=ETTh1
 data_name=ETTh1
 
 
-for seq_len in 336 512 720
+for seq_len in 512
 do
 for pred_len in 48 96
 do
@@ -40,7 +40,7 @@ do
       --patch_len 24\
       --stride 24\
       --des 'Exp' \
-      --train_epochs 50\
+      --train_epochs 1\
       --patience 10\
       --kernel_size 25\
       --lradj type3\
@@ -77,7 +77,7 @@ do
       --patch_len 24\
       --stride 24\
       --des 'Exp' \
-      --train_epochs 50\
+      --train_epochs 1\
       --patience 10\
       --kernel_size 25\
       --lradj type3\
@@ -114,7 +114,7 @@ do
       --patch_len 24\
       --stride 24\
       --des 'Exp' \
-      --train_epochs 50\
+      --train_epochs 1\
       --patience 10\
       --kernel_size 25\
       --lradj type3\
@@ -151,7 +151,7 @@ do
       --patch_len 24\
       --stride 24\
       --des 'Exp' \
-      --train_epochs 50\
+      --train_epochs 1\
       --patience 10\
       --kernel_size 25\
       --lradj type3\

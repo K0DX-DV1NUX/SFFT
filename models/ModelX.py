@@ -74,7 +74,7 @@ class Seasonal(nn.Module):
         # Now diagonal_full is symmetric: c_j = c_{n-j}
         diagonal_mat = torch.diag(self.diagonal).to(torch.complex64)
 
-        circulant_mat = self.f_modes @ diagonal_mat @ self.f_modes_inv
+        circulant_mat = self.f_modes_inv @ diagonal_mat @ self.f_modes
         x = x @ circulant_mat.real
         return F.tanh(x)
 
@@ -94,7 +94,7 @@ class Seasonal(nn.Module):
     
     def symmetry_regularizer(self):
         diagonal_mat = torch.diag(self.diagonal).to(torch.complex64)
-        circulant_mat = self.f_modes @ diagonal_mat @ self.f_modes_inv
+        circulant_mat = self.f_modes_inv @ diagonal_mat @ self.f_modes
 
         # Calculate the symmetry regularization term
         circulant_mat = circulant_mat.real
@@ -107,11 +107,11 @@ class EncoderBlock(nn.Module):
         super(EncoderBlock, self).__init__()
         self.trend = Trend(kernel_size=trend_kernel_size, stride=1)
         
-        f_modes = Seasonal._fourier_basis(seq_len*seasons)
-        seasonal_f_modes = [f_modes[i*seq_len:(i+1)*seq_len, i*seq_len:(i+1)*seq_len] for i in range(seasons)]
+        f_modes = Seasonal._fourier_basis(seq_len)
+        #seasonal_f_modes = [f_modes[i*seq_len:(i+1)*seq_len, i*seq_len:(i+1)*seq_len] for i in range(seasons)]
         
         self.seasonal_list = nn.ModuleList([
-            Seasonal(seq_len, seasonal_f_modes[_]) for _ in range(seasons)
+            Seasonal(seq_len, f_modes) for _ in range(seasons)
         ])
 
     # x: [batch_size, channels, seq_len]
@@ -177,25 +177,44 @@ class Model(nn.Module):
         trend_kernel_size = configs.kernel_size
         seasons = configs.seasons
         rank = configs.rank
+        enable_low_rank = configs.enable_lowrank
 
 
         if self.individual:
             self.denoising_encoder = nn.ModuleList([
                 DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons) for _ in range(self.channels)
             ])
-            self.pred = nn.ModuleList([
-                LowRank(in_features=self.seq_len,
-                        out_features=self.pred_len,
-                        rank=rank,
-                        bias=configs.bias) for _ in range(self.channels)
-            ])
+
+            if enable_low_rank:
+                # Use low-rank layers for each channel
+                self.pred = nn.ModuleList([
+                    LowRank(in_features=self.seq_len,
+                            out_features=self.pred_len,
+                            rank=rank,
+                            bias=configs.bias) for _ in range(self.channels)
+                ])
+            else:
+                # Use standard linear layers for each channel
+                self.pred = nn.ModuleList([
+                    nn.Linear(in_features=self.seq_len,
+                              out_features=self.pred_len,
+                              bias=configs.bias) for _ in range(self.channels)
+                ])
         else:
 
             self.denoising_encoder = DenoisingEncoder(encoder_depth, trend_kernel_size, self.seq_len, seasons)
-            self.pred = LowRank(in_features=self.seq_len,
-                                out_features=self.pred_len,
-                                rank=rank,
-                                bias=configs.bias)
+
+            if enable_low_rank:
+                # Use a single low-rank layer for the entire model
+                self.pred = LowRank(in_features=self.seq_len,
+                                    out_features=self.pred_len,
+                                    rank=rank,
+                                    bias=configs.bias)
+            else:
+                # Use a standard linear layer for the entire model
+                self.pred = nn.Linear(in_features=self.seq_len,
+                                      out_features=self.pred_len,
+                                      bias=configs.bias)
 
     # x: [batch_size, seq_len, channels] 
     def forward(self, x):
@@ -214,6 +233,7 @@ class Model(nn.Module):
         else:
             # Apply the denoising encoder
             x = self.denoising_encoder(x)
+
             out = self.pred(x)
 
         out = out.permute(0, 2, 1)

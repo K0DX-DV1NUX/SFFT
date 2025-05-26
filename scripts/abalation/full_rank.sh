@@ -4,19 +4,20 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-
-
 model_name=ModelX
 
 root_path_name=./dataset/
-data_path_name=ETTh2.csv
-model_id_name=ETTh2
-data_name=ETTh2
+data_path_name=ETTh1.csv
+model_id_name=ETTh1
+data_name=ETTh1
+
+seq_len=512
+pred_len=192
 
 
-for seq_len in 336 512 720
-do
 for pred_len in 48 96 192 336 512 720
+do
+for enable_low_rank in 0 1
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -31,15 +32,15 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
-      --rank 40 \
+      --train_epochs 30 \
+      --rank 30 \
       --bias 0 \
-      --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 4 \
-      --seasons 1 \
-      --kernel_size 70 \
-      --patience 10 \
+      --decomposer_depth 1 \
+      --seasons 3 \
+      --kernel_size 50 \
+      --patience 6 \
+      --enable_lowrank $enable_low_rank \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \
@@ -47,4 +48,3 @@ do
       --learning_rate 0.01
 done
 done
-
