@@ -1,4 +1,4 @@
-# FOCUS-TS: FOurier and Circulant Unwrapping for Time Series  
+# SFFT 
 
 ## Overview
 
