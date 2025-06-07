@@ -1,21 +1,42 @@
-# SFFT 
 
-## Overview
+# Overview
 
+**SFFT** (Symmetric Fourier Fragment Transform) is a lightweight, interpretable time series forecasting model.
 
+![SFFT Architecture](image/SFFT_model.png)
 
+It decomposes time series into:
+- **Seasonal components** modeled via learned *symmetric circulant matrices* in the Fourier domain (efficient, interpretable harmonic components).
+- **Trend components** extracted via moving average.
+- **Residual noise** removed by an iterative multi-block architecture.
+
+The model can then perform *direct forecasting* of future values from the denoised representation via either:
+- a standard Linear layer, or
+- a Low-Rank Linear layer.
+
+SFFT is **simple**, **fast**, and achieves competitive performance on a variety of time series benchmarks.
+
+---
 
 ## Key Features
 
+✅ **Fourier-based symmetric seasonal decomposition**  
+✅ **Trend extraction via moving average**  
+✅ **Stackable Decompose blocks** for progressive denoising  
+✅ **Optional Low-Rank prediction head**  
+✅ **Channel-wise or shared model architecture**  
+✅ Lightweight, interpretable, no recurrence or self-attention  
 
-## Usage
+---
 
-### Initialization
+# Usage
 
+## Initialization
 ```
 model = Model(configs)
 ```
-### Configuration Options
+
+## Configuration Options
 | Parameter       | Description                                    | Default |
 |---------------|--------------------------------|---------|
 | `seq_len`     | Input sequence length                         | -       |
@@ -23,18 +44,21 @@ model = Model(configs)
 | `enc_in`    | Number of input features                      | -       |
 | `individual`  | If True, applies a separate layer per feature | False   |
 | `bias`        | Enables bias in the low-rank layer            | True    |
-| `enable_Haar` | Enables Haar decomposition                    | True    |
-| `enable_DCT`  | Enables Discrete Cosine Transform             | True    |
-| `enable_iDCT`  | Enables Inverse Discrete Cosine Transform    | False    |
+| `decomposer_depth` | Number of stacked Decompose blocks       | 1    |
+| `kernel_size`  | Moving average kernel size for Trend extraction             | 50    |
+| `seasons`  | Number of Seasonal modules per Decompose block    | 1    |
 | `enable_lowrank`  | Enables Low Rank or Standard Linear Layer    | True    |
 | `rank`        | Rank of the low-rank layer                    | 30      |
 
-### Forward Pass
-
+## Forward Pass
+```
+output = model(X)
+```
 
 # Results
 
-
+![Result1](image/table1.png)
+![Result2](image/table2.png)
 
 
 # Acknowledgement
