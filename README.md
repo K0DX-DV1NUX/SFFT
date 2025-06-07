@@ -1,9 +1,11 @@
 
-# Overview
+# SFFT: Symmetric Fourier Fragment Transform
 
-**SFFT** (Symmetric Fourier Fragment Transform) is a lightweight, interpretable time series forecasting model.
+**Symmetric Fourier Fragment Transform (SFFT)** is a lightweight time-domain model for long-term time series forecasting that embeds spectral structure into the decomposition process. Traditional time-domain models often struggle to disentangle residual noise from seasonal components, while frequency-domain methods require complex-valued operations. SFFT bridges this gap by combining simple trend extraction with learnable symmetric Fourier-based seasonal operators, all within the real domain. This enables effective multi-scale denoising and forecasting with minimal parameter overhead. In univariate benchmarks, SFFT achieves accuracy on par with leading frequency-based models while maintaining the efficiency and simplicity of time-domain methods.
 
 ![SFFT Architecture](image/SFFT_model.png)
+
+# Overview
 
 It decomposes time series into:
 - **Seasonal components** modeled via learned *symmetric circulant matrices* in the Fourier domain (efficient, interpretable harmonic components).
