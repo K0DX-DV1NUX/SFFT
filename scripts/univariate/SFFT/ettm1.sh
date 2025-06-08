@@ -4,7 +4,7 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-model_name=ModelX
+model_name=SFFT
 
 root_path_name=./dataset/
 data_path_name=ETTm1.csv
@@ -33,8 +33,8 @@ do
       --bias 1 \
       --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 3 \
-      --seasons 1 \
+      --decomposer_depth 2 \
+      --seasons 3 \
       --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \

@@ -6,17 +6,16 @@ fi
 
 
 
-model_name=ModelX
+model_name=SFFT
 
 root_path_name=./dataset/
 data_path_name=ETTh2.csv
 model_id_name=ETTh2
 data_name=ETTh2
 
-
-for seq_len in 336 512 720
-do
 for pred_len in 48 96 192 336 512 720
+do
+for seq_len in 336 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -36,8 +35,8 @@ do
       --bias 0 \
       --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 4 \
-      --seasons 1 \
+      --decomposer_depth 2 \
+      --seasons 3 \
       --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \

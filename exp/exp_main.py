@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import HADL, DLinear, ModernTCN, PatchTST, FreTS, SparseTSF, iTransformer, FrNet, ModelX, ModelX2
+from models import HADL, DLinear, ModernTCN, PatchTST, FreTS, SparseTSF, iTransformer, FrNet, SFFT
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 
@@ -36,8 +36,7 @@ class Exp_Main(Exp_Basic):
             'iTransformer': iTransformer,
             'ModernTCN': ModernTCN,
             'FrNet': FrNet,
-            'ModelX': ModelX,
-            'ModelX2': ModelX2,
+            'SFFT': SFFT,
         }
         model = model_dict[self.args.model].Model(self.args).float()
 

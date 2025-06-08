@@ -4,14 +4,12 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-
-
-model_name=ModelX2
+model_name=SFFT
 
 root_path_name=./dataset/
-data_path_name=ETTh2.csv
-model_id_name=ETTh2
-data_name=ETTh2
+data_path_name=traffic.csv
+model_id_name=traffic
+data_name=custom
 
 for pred_len in 48 96 192 336 512 720
 do
@@ -31,11 +29,12 @@ do
       --pred_len $pred_len \
       --enc_in 1 \
       --train_epochs 50 \
-      --rank 40 \
+      --rank 35 \
       --bias 0 \
+      --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 1 \
-      --seasons 7 \
+      --decomposer_depth 3 \
+      --seasons 4 \
       --kernel_size 70 \
       --patience 10 \
       --des 'Exp' \
@@ -45,4 +44,5 @@ do
       --learning_rate 0.01
 done
 done
+
 
