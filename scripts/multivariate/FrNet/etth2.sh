@@ -15,7 +15,7 @@ data_name=ETTh2
 
 for seq_len in 336 512 720
 do
-for pred_len in 48 96
+for pred_len in 96
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -25,10 +25,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 7 \
       --e_layers 1 \
       --n_heads 4 \
       --d_model 16 \
@@ -39,8 +39,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type3\
       --pred_head_type 'truncation'\
@@ -62,11 +62,11 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
       --train_type Linear \
-      --enc_in 1 \
+      --enc_in 7 \
       --e_layers 2 \
       --n_heads 4 \
       --d_model 16 \
@@ -77,8 +77,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type3\
       --pred_head_type 'truncation'\
@@ -90,7 +90,7 @@ do
       --itr 1 --batch_size 128 --learning_rate 0.0003
 done
 
-for pred_len in 336 512
+for pred_len in 336
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -100,10 +100,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 7 \
       --e_layers 1 \
       --n_heads 4 \
       --d_model 16 \
@@ -114,8 +114,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type3\
       --pred_head_type 'truncation'\
@@ -137,11 +137,11 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
       --train_type Linear \
-      --enc_in 1 \
+      --enc_in 7 \
       --e_layers 1 \
       --n_heads 4 \
       --d_model 16 \
@@ -152,8 +152,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type1\
       --pred_head_type 'truncation'\

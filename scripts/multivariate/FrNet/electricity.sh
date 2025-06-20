@@ -15,7 +15,7 @@ data_name=custom
 
 for seq_len in 336 512 720
 do
-for pred_len in 48 96
+for pred_len in 96
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -25,10 +25,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 321 \
       --e_layers 1 \
       --n_heads 8 \
       --d_model 64 \
@@ -39,8 +39,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type3\
       --pred_head_type 'linear'\
@@ -49,7 +49,7 @@ do
       --global_freq_pred 1\
       --period_list 24 48 12\
       --emb 96\
-      --itr 1 --batch_size 32 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+      --itr 1 --batch_size 32 --learning_rate 0.0003 
 done
 
 for pred_len in 192
@@ -62,10 +62,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 321 \
       --e_layers 2 \
       --n_heads 8 \
       --d_model 64 \
@@ -76,8 +76,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type1\
       --pred_head_type 'truncation'\
@@ -86,7 +86,7 @@ do
       --global_freq_pred 0\
       --period_list 24 48 12\
       --emb 96\
-      --itr 1 --batch_size 32 --learning_rate 0.01 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+      --itr 1 --batch_size 32 --learning_rate 0.01
 done
 
 for pred_len in 336
@@ -99,10 +99,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 321 \
       --e_layers 2 \
       --n_heads 8 \
       --d_model 64 \
@@ -123,10 +123,10 @@ do
       --global_freq_pred 0\
       --period_list 24 48 12\
       --emb 96\
-      --itr 1 --batch_size 32 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+      --itr 1 --batch_size 32 --learning_rate 0.0003
 done
 
-for pred_len in 512 720
+for pred_len in 720
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -136,10 +136,10 @@ do
       --model $model_name \
       --data $data_name \
       --train_type Linear \
-      --features S \
+      --features M \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 1 \
+      --enc_in 321 \
       --e_layers 2 \
       --n_heads 8 \
       --d_model 64 \
@@ -150,8 +150,8 @@ do
       --patch_len 16\
       --stride 8\
       --des 'Exp' \
-      --train_epochs 50\
-      --patience 10\
+      --train_epochs 100\
+      --patience 20\
       --kernel_size 25\
       --lradj type3\
       --pred_head_type 'truncation'\
@@ -160,6 +160,6 @@ do
       --global_freq_pred 0\
       --period_list 24 72 48 12\
       --emb 96\
-      --itr 1 --batch_size 32 --learning_rate 0.0003 >logs/LongForecasting/$model_name'_'$model_id_name'_'$seq_len'_'$pred_len.log 
+      --itr 1 --batch_size 32 --learning_rate 0.0003
 done
 done
