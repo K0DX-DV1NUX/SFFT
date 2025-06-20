@@ -10,7 +10,7 @@ model_id_name=ETTh1
 data_name=ETTh1
 
 
-for pred_len in 48 96 192 336 512 720
+for pred_len in 96 192 336 720
 do
 for seq_len in  336 512 720
 do
@@ -27,7 +27,7 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 7 \
-      --train_epochs 50 \
+      --train_epochs 100 \
       --rank 35 \
       --bias 0 \
       --enable_lowrank 1 \
@@ -35,7 +35,7 @@ do
       --decomposer_depth 5 \
       --seasons 3 \
       --kernel_size 70 \
-      --patience 10 \
+      --patience 20 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \

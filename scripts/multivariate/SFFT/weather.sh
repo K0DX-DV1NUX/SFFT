@@ -7,9 +7,9 @@ fi
 model_name=SFFT
 
 root_path_name=./dataset/
-data_path_name=ETTm1.csv
-model_id_name=ETTm1
-data_name=ETTm1
+data_path_name=weather.csv
+model_id_name=weather
+data_name=custom
 
 for pred_len in 96 192 336 720
 do
@@ -27,10 +27,10 @@ do
       --train_type Linear \
       --seq_len $seq_len \
       --pred_len $pred_len \
-      --enc_in 7 \
+      --enc_in 21 \
       --train_epochs 100 \
-      --rank 30 \
-      --bias 1 \
+      --rank 35 \
+      --bias 0 \
       --enable_lowrank 1 \
       --sym_regularizer 1 \
       --decomposer_depth 5 \
@@ -44,3 +44,4 @@ do
       --learning_rate 0.01
 done
 done
+
