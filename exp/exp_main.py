@@ -64,40 +64,9 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-                if 'PEMS' in self.args.data or 'Solar' in self.args.data:
-                    batch_x_mark = None
-                    batch_y_mark = None
-                else:
-                    batch_x_mark = batch_x_mark.float().to(self.device)
-                    batch_y_mark = batch_y_mark.float().to(self.device)
-
-                # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if self.args.train_type.lower()=="linear":
-                            outputs = self.model(batch_x)
-                        elif self.args.train_type.lower()=="tcn":
-                            outputs = self.model(batch_x, batch_x_mark)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if self.args.train_type.lower()=="linear":
-                            outputs = self.model(batch_x)
-                    elif self.args.train_type.lower()=="tcn":
-                            outputs = self.model(batch_x, batch_x_mark)
-                    elif self.args.train_type.lower()=="fits":
-                        outputs, low = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+                outputs = self.model(batch_x)      
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -148,67 +117,27 @@ class Exp_Main(Exp_Basic):
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+
+                outputs = self.model(batch_x)
+                    
+                f_dim = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                    
+                if self.args.regularizer:
+                    reg_loss = self.args.regularization_rate * torch.mean(torch.abs(outputs))
+                else:
+                    reg_loss = 0.0
+
+                if self.args.sym_regularizer:
+                    sym_loss = self.model.symmetry_regularizer()
+                else:
+                    sym_loss = 0.0
                 
-                if 'PEMS' in self.args.data or 'Solar' in self.args.data:
-                    batch_x_mark = None
-                    batch_y_mark = None
-                else:
-                    batch_x_mark = batch_x_mark.float().to(self.device)
-                    batch_y_mark = batch_y_mark.float().to(self.device)
-
-
-                # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if self.args.train_type.lower()=="linear":
-                            outputs = self.model(batch_x)
-                        elif self.args.train_type.lower()=="tcn":
-                            outputs = self.model(batch_x, batch_x_mark)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        f_dim = -1 if self.args.features == 'MS' else 0
-                        outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                        loss = criterion(outputs, batch_y)
-                        train_loss.append(loss.item())
-                else:
-                    if self.args.train_type.lower()=="linear":
-                        outputs = self.model(batch_x)
-                    elif self.args.train_type.lower()=="tcn":
-                        outputs = self.model(batch_x, batch_x_mark)
-                    elif self.args.train_type.lower()=="fits":
-                        outputs, low = self.model(batch_x)
-                        # outputs = self.model(batch_x)   #if decide not to use time stamp, use this code
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    # print(outputs.shape,batch_y.shape)
-                    f_dim = -1 if self.args.features == 'MS' else 0
-                    outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    
-                    if self.args.regularizer:
-                        reg_loss = self.args.regularization_rate * torch.mean(torch.abs(outputs))
-                    else:
-                        reg_loss = 0.0
-
-                    if self.args.sym_regularizer:
-                        sym_loss = self.model.symmetry_regularizer()
-                    else:
-                        sym_loss = 0.0
-                    
-                    loss = criterion(outputs, batch_y) + reg_loss + sym_loss
-                    train_loss.append(loss.item())
+                loss = criterion(outputs, batch_y) + reg_loss + sym_loss
+                train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -280,52 +209,17 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-                if 'PEMS' in self.args.data or 'Solar' in self.args.data:
-                    batch_x_mark = None
-                    batch_y_mark = None
-                else:
-                    batch_x_mark = batch_x_mark.float().to(self.device)
-                    batch_y_mark = batch_y_mark.float().to(self.device)
-
-                # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
 
                 ## Creating profiles for Fvncore
                 if i==0:
                     profile_x = torch.randn(batch_x.shape).to(self.device)
                     profile_x_mark = torch.randn(batch_x_mark.shape).to(self.device)
                     profile_y_mark = torch.randn(batch_y_mark.shape).to(self.device)
-                    profile_dec_inp = torch.randn(dec_inp.shape).to(self.device)
 
-                # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if self.args.train_type.lower()=="linear":
-                            outputs = self.model(batch_x)
-                        elif self.args.train_type.lower()=="tcn":
-                            outputs = self.model(batch_x, batch_x_mark)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if self.args.train_type.lower()=="linear":
-                        outputs = self.model(batch_x)
-                    elif self.args.train_type.lower()=="tcn":
-                        outputs = self.model(batch_x, batch_x_mark)
-                    elif self.args.train_type.lower()=="fits":
-                        outputs, low = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
+                outputs = self.model(batch_x)
                 f_dim = -1 if self.args.features == 'MS' else 0
-                # print(outputs.shape,batch_y.shape)
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
