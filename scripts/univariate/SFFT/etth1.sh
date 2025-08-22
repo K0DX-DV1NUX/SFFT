@@ -4,7 +4,7 @@ fi
 
 model_name=SFFT
 
-root_path_name=./dataset/
+root_path_name=../dataset/
 data_path_name=ETTh1.csv
 model_id_name=ETTh1
 data_name=ETTh1
@@ -40,6 +40,7 @@ do
       --regularizer 0 \
       --itr 1 \
       --batch_size 32 \
+      --num_workers 0 \
       --learning_rate 0.01
 done
 done

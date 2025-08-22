@@ -4,7 +4,7 @@ fi
 
 model_name=SFFT
 
-root_path_name=./dataset/
+root_path_name=../dataset/
 data_path_name=ETTh1.csv
 model_id_name=ETTh1
 data_name=ETTh1
@@ -28,18 +28,19 @@ do
       --pred_len $pred_len \
       --enc_in 7 \
       --train_epochs 100 \
-      --rank 35 \
+       --rank 35 \
       --bias 0 \
       --enable_lowrank 1 \
       --sym_regularizer 1 \
-      --decomposer_depth 5 \
+      --decomposer_depth 2 \
       --seasons 3 \
       --kernel_size 70 \
-      --patience 20 \
+      --patience 10 \
       --des 'Exp' \
       --regularizer 0 \
       --itr 1 \
       --batch_size 32 \
+      --num_workers 0 \
       --learning_rate 0.01
 done
 done
