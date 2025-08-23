@@ -30,7 +30,9 @@ def adjust_learning_rate(optimizer, scheduler, epoch, args, printout=True):
     elif args.lradj == '5':
         lr_adjust = {epoch: args.learning_rate if epoch < 25 else args.learning_rate*0.1}
     elif args.lradj == '6':
-        lr_adjust = {epoch: args.learning_rate if epoch < 5 else args.learning_rate*0.1}  
+        lr_adjust = {epoch: args.learning_rate if epoch < 5 else args.learning_rate*0.1}
+    elif args.lradj == '7':
+        lr_adjust = {epoch: max(args.learning_rate if epoch < 4 else args.learning_rate * (0.5 ** ((epoch - 1) // 1)), 1e-6)} 
     elif args.lradj == 'TST':
         lr_adjust = {epoch: scheduler.get_last_lr()[0]}
     
