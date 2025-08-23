@@ -203,8 +203,8 @@ class Exp_Main(Exp_Basic):
         profile_dec_inp = None
 
         self.model.eval()
-        if self.args.call_structural_reparam and hasattr(self.model, 'structural_reparam'):
-            self.model.structural_reparam()
+        # if self.args.call_structural_reparam and hasattr(self.model, 'structural_reparam'):
+        #     self.model.structural_reparam()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
