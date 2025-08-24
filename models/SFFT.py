@@ -191,7 +191,7 @@ class DecompBlock(nn.Module):
 
     def forward(self, x):
         # Clone the input for residual calculation
-        x_rem = x.clone()
+        x_rem = x.detach().clone()
 
         # Iteratively extract and subtract each seasonal component
         for seasonal in self.seasonal_list:
@@ -312,13 +312,14 @@ class Model(nn.Module):
         rank = configs.rank
         enable_low_rank = configs.enable_lowrank
 
-        if self.individual:
-            # Create separate Decompose and prediction layers per channel
-            self.denoising_encoder = nn.ModuleList([
-                Decompose(decomposer_depth, trend_kernel_size, self.seq_len, seasons)
-                for _ in range(self.channels)
-            ])
+        
+        # Create Decomposer Block per channel
+        self.denoising_encoder = nn.ModuleList([
+            Decompose(decomposer_depth, trend_kernel_size, self.seq_len, seasons)
+            for _ in range(self.channels)
+        ])
 
+        if self.individual:
             if enable_low_rank:
                 self.pred = nn.ModuleList([
                     LowRank(
@@ -339,9 +340,6 @@ class Model(nn.Module):
                     for _ in range(self.channels)
                 ])
         else:
-            # Shared Decompose and prediction layers for all channels
-            self.denoising_encoder = Decompose(decomposer_depth, trend_kernel_size, self.seq_len, seasons)
-
             if enable_low_rank:
                 self.pred = LowRank(
                     in_features=self.seq_len,
@@ -364,33 +362,29 @@ class Model(nn.Module):
         seq_mean = torch.mean(x, axis=-1, keepdim=True)
         x = x - seq_mean
 
+        # Denoising step: apply decomposition per channel
+        clean_channels = []
+        for i in range(self.channels):
+            xi = x[:, i, :].contiguous() # [B, L]
+            xi_clean = self.denoising_encoder[i](xi.unsqueeze(1))
+            clean_channels.append(xi_clean)       # [B, 1, L]
+        x_clean = torch.cat(clean_channels, dim=1) # [B, C, L]
+       
+        # Prediction step
         if self.individual:
-            # Apply denoising encoder and prediction separately for each channel
-            out_channels = []
+            pred_channels = []
             for i in range(self.channels):
-                # Apply denoising encoder for channel i
-                x[:, i, :] = self.denoising_encoder[i](x[:, i, :].unsqueeze(1)).squeeze(1)
-
-                # Predict future values for channel i
-                out_i = self.pred[i](x[:, i, :].unsqueeze(1)).squeeze(1)
-                out_channels.append(out_i.unsqueeze(-1))  # shape [batch_size, pred_len, 1]
-
-            # Concatenate predictions along channel dimension
-            out = torch.cat(out_channels, dim=-1)  # shape [batch_size, pred_len, channels]
+                pred_i = self.pred[i](x_clean[:, i, :])  # [B, H]
+                pred_channels.append(pred_i.unsqueeze(1))         # [B, 1, H]
+            out = torch.cat(pred_channels, dim=1)                 # [B, C, H]
         else:
-            # Shared denoising encoder and prediction layer
-            x = self.denoising_encoder(x)
-
-            out = self.pred(x)  # shape [batch_size, pred_len, channels] or [batch_size, pred_len]
-
-            # If pred layer returns [batch_size, pred_len], add channel dimension
-            if out.ndim == 2:
-                out = out.unsqueeze(-1)
+            # Shared prediction head
+            out = self.pred(x_clean)               # [B, C, H]
 
         # Restore mean
         out = out + seq_mean
 
-        return out  # [batch_size, pred_len, channels]
+        return out.permute(0,2,1)  # [B, H, C]
 
     def symmetry_regularizer(self):
         """
@@ -400,12 +394,9 @@ class Model(nn.Module):
         - reg (torch.Tensor): Scalar tensor representing the total symmetry regularization.
         """
         reg = 0.0
-        if self.individual:
-            # Sum symmetry regularization from each channel-specific encoder
-            for i in range(self.channels):
-                reg += self.denoising_encoder[i].symmetry_regularizer()
-        else:
-            # Single shared encoder
-            reg = self.denoising_encoder.symmetry_regularizer()
-
+        
+        # Sum symmetry regularization from each channel-specific encoder
+        for i in range(self.channels):
+            reg += self.denoising_encoder[i].symmetry_regularizer()
+        
         return reg

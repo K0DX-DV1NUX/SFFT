@@ -27,21 +27,22 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 50 \
+      --train_epochs 20 \
       --rank 35 \
       --bias 0 \
-      --enable_lowrank 1 \
-      --sym_regularizer 1 \
+      --enable_lowrank 0 \
       --decomposer_depth 2 \
       --seasons 3 \
       --kernel_size 70 \
-      --patience 10 \
+      --patience 5 \
       --des 'Exp' \
-      --regularizer 0 \
+      --reg 0 \
+      --reg_rate 0.1 \
       --itr 1 \
       --batch_size 32 \
       --num_workers 0 \
-      --learning_rate 0.01
+      --lradj 7 \
+      --learning_rate 0.05
 done
 done
 

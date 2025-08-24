@@ -126,17 +126,12 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     
-                if self.args.regularizer:
-                    reg_loss = self.args.regularization_rate * torch.mean(torch.abs(outputs))
-                else:
-                    reg_loss = 0.0
-
-                if self.args.sym_regularizer:
-                    sym_loss = self.model.symmetry_regularizer()
+                if self.args.reg:
+                    sym_loss = self.args.reg_rate * self.model.symmetry_regularizer()
                 else:
                     sym_loss = 0.0
                 
-                loss = criterion(outputs, batch_y) + reg_loss + sym_loss
+                loss = criterion(outputs, batch_y) + sym_loss
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:

@@ -10,13 +10,13 @@ model_id_name=ETTh1
 data_name=ETTh1
 
 
-for pred_len in 96 192 336 720
+for pred_len in 96
 do
-for seq_len in  336 512 720
+for seq_len in 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
-      --individual 1 \
+      --individual 0 \
       --root_path $root_path_name \
       --data_path $data_path_name \
       --model_id $model_id_name'_'$seq_len'_'$pred_len \
@@ -27,20 +27,21 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 7 \
-      --train_epochs 100 \
-       --rank 35 \
+      --train_epochs 20 \
+      --rank 35 \
       --bias 0 \
-      --enable_lowrank 1 \
-      --sym_regularizer 1 \
+      --enable_lowrank 0 \
       --decomposer_depth 2 \
       --seasons 3 \
       --kernel_size 70 \
-      --patience 10 \
+      --patience 6 \
       --des 'Exp' \
-      --regularizer 0 \
+      --reg 0 \
+      --reg_rate 0.1 \
       --itr 1 \
       --batch_size 32 \
       --num_workers 0 \
+      --lradj 7 \
       --learning_rate 0.01
 done
 done
