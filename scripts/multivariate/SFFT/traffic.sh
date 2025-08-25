@@ -6,18 +6,18 @@ fi
 
 model_name=SFFT
 
-root_path_name=./dataset/
+root_path_name=../dataset/
 data_path_name=traffic.csv
 model_id_name=traffic
 data_name=custom
 
-for pred_len in 96 192 336 720
+for pred_len in 96 192 336 512 720
 do
 for seq_len in 336 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
-      --individual 1 \
+      --individual 0 \
       --root_path $root_path_name \
       --data_path $data_path_name \
       --model_id $model_id_name'_'$seq_len'_'$pred_len \
@@ -31,16 +31,18 @@ do
       --train_epochs 100 \
       --rank 35 \
       --bias 0 \
-      --enable_lowrank 1 \
-      --sym_regularizer 1 \
-      --decomposer_depth 5 \
-      --seasons 4 \
+      --enable_lowrank 0 \
+      --decomposer_depth 4 \
+      --seasons 3 \
       --kernel_size 70 \
       --patience 20 \
       --des 'Exp' \
-      --regularizer 0 \
+      --reg 0 \
+      --reg_rate 0.1 \
       --itr 1 \
       --batch_size 32 \
+      --num_workers 0 \
+      --lradj 7 \
       --learning_rate 0.01
 done
 done
