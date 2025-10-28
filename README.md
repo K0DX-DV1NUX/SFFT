@@ -1,7 +1,7 @@
 
-# SFFT: Symmetric Fourier Fragment Transform
+# FragFM: Fragmented Fourier Matrix for multi-seasonality extraction in Univariate Long-term Time Series Forecasting
 
-**Symmetric Fourier Fragment Transform (SFFT)** is a lightweight time-domain model for long-term time series forecasting that embeds spectral structure into the decomposition process. Traditional time-domain models often struggle to disentangle residual noise from seasonal components, while frequency-domain methods require complex-valued operations. SFFT bridges this gap by combining simple trend extraction with learnable symmetric Fourier-based seasonal operators, all within the real domain. This enables effective multi-scale denoising and forecasting with minimal parameter overhead. In univariate benchmarks, SFFT achieves accuracy on par with leading frequency-based models while maintaining the efficiency and simplicity of time-domain methods.
+**Fragmented Fourier Matrix (FragFM)** is a temporal-domain model for long-term time series forecasting that embeds spectral structure into the decomposition process for denoising time series. Traditional time-domain models often struggle to disentangle residual noise from seasonal components, while frequency-domain methods require complex-valued operations. FragFM bridges this gap by combining simple trend extraction with learnable symmetric Fourier-based seasonal extractors, all within the real domain. This enables effective multi-scale denoising and forecasting with minimal parameter overhead. In univariate benchmarks, SFFT achieves accuracy on par with leading frequency-based models while maintaining the efficiency and simplicity of time-domain methods.
 
 ![SFFT Architecture](image/SFFT_model.png)
 
@@ -16,7 +16,7 @@ The model can then perform *direct forecasting* of future values from the denois
 - a standard Linear layer, or
 - a Low-Rank Linear layer.
 
-SFFT is **simple**, **fast**, and achieves competitive performance on a variety of time series benchmarks.
+SFFT is among the few temporal domain models that utilizes benefits of spectral domain yet being temporal, and achieves competitive performance on a variety of time series benchmarks.
 
 ---
 
