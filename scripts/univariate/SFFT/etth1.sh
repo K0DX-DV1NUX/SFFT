@@ -2,7 +2,7 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-model_name=SFFT
+model_name=FragFM
 
 root_path_name=../dataset/
 data_path_name=ETTh1.csv
@@ -27,19 +27,19 @@ do
       --seq_len $seq_len \
       --pred_len $pred_len \
       --enc_in 1 \
-      --train_epochs 20 \
-      --rank 35 \
+      --train_epochs 50 \
+      --patience 10 \
       --bias 0 \
-      --enable_lowrank 0 \
+      --enable_lowrank 1 \
+      --rank 25 \
       --decomposer_depth 2 \
-      --seasons 3 \
+      --seasons 2 \
       --kernel_size 70 \
-      --patience 5 \
       --des 'Exp' \
-      --reg 0 \
-      --reg_rate 0.1 \
+      --reg 1 \
+      --reg_rate 1.0 \
       --itr 1 \
-      --batch_size 32 \
+      --batch_size 128 \
       --num_workers 0 \
       --lradj 7 \
       --learning_rate 0.05

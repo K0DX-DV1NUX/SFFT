@@ -1,4 +1,5 @@
 import argparse
+import sys
 import os
 import torch
 from exp.exp_main import Exp_Main
@@ -12,6 +13,7 @@ parser = argparse.ArgumentParser(description='Long-term Time Series Forecasting 
 # basic config
 parser.add_argument('--seed', type=int, default=2021, help='random seed')
 parser.add_argument('--is_training', type=int, required=True, default=1, help='status')
+parser.add_argument('--calculate_params', type=int, required=False, default=0)
 parser.add_argument('--model_id', type=str, required=True, default='test', help='model id')
 parser.add_argument('--model', type=str, required=True, default='HADL', help='model name')
 parser.add_argument('--train_type', type=str, required=True, default="Linear", help="the method to calculate output: 1. Linear, 2. TCN")
@@ -33,7 +35,7 @@ parser.add_argument('--label_len', type=int, default=48, help='start token lengt
 parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 
 
-parser.add_argument('--individual', type=int, default=0, help='individual head; True 1 False 0') # Used by PatchTST too.
+parser.add_argument('--individual', type=int, default=0, help='individual head; True 1 False 0')
 parser.add_argument('--rank', type=int, default=50, help='rank of low rank matrix')
 parser.add_argument('--enable_lowrank', type=int, default=1, help='enable low rank approximation; True 1 False 0')
 parser.add_argument('--bias', type=int, default=1, help='enable bias; True 1 False 0')
@@ -92,6 +94,23 @@ print('Args in experiment:')
 print(args)
 
 Exp = Exp_Main
+
+
+if args.calculate_params:
+    setting = '{}_{}_ft{}_sl{}_pl{}'.format(
+            args.model,
+            args.data,
+            args.features,
+            args.seq_len,
+            args.pred_len)
+    exp = Exp(args)  # set experiments
+    print('>>>>>>>start calculating params : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+    exp.calc_params(setting)
+    torch.cuda.empty_cache()
+    sys.exit()
+
+
+
 
 if args.is_training:
     for ii in range(args.itr):

@@ -4,16 +4,16 @@ if [ ! -d "./logs" ]; then
     mkdir ./logs
 fi
 
-model_name=SFFT
+model_name=FragFM
 
-root_path_name=./dataset/
+root_path_name=../dataset/
 data_path_name=electricity.csv
 model_id_name=Electricity
 data_name=custom
 
-for pred_len in 48 96 192 336 512 720
+for pred_len in 48 96 192 336 720
 do
-for seq_len in 336 512 720
+for seq_len in  336 512 720
 do
     python -u run_longExp.py \
       --is_training 1 \
@@ -29,19 +29,21 @@ do
       --pred_len $pred_len \
       --enc_in 1 \
       --train_epochs 50 \
-      --rank 35 \
+      --patience 10 \
       --bias 0 \
       --enable_lowrank 1 \
-      --sym_regularizer 1 \
-      --decomposer_depth 2 \
+      --rank 40 \
+      --decomposer_depth 1 \
       --seasons 3 \
-      --kernel_size 70 \
-      --patience 10 \
+      --kernel_size 30 \
       --des 'Exp' \
-      --regularizer 0 \
+      --reg 1 \
+      --reg_rate 1.0 \
       --itr 1 \
-      --batch_size 32 \
-      --learning_rate 0.01
+      --batch_size 128 \
+      --num_workers 0 \
+      --lradj 7 \
+      --learning_rate 0.05
 done
 done
 

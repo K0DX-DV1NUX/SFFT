@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import SFFT
+from models import FragFM
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 
@@ -28,7 +28,7 @@ class Exp_Main(Exp_Basic):
 
     def _build_model(self):
         model_dict = {
-            'SFFT': SFFT,
+            'FragFM': FragFM,
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
@@ -282,3 +282,18 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'true.npy', trues)
         # np.save(folder_path + 'x.npy', inputx)
         return
+
+
+    def calc_params(self, setting):
+        params = sum(p.numel() for p in self.model.parameters())
+        buffers = sum(b.numel() for b in self.model.buffers())
+        model_size_mb = (params + buffers) / 1024 / 1024
+        f = open(f"{self.args.model}_params.txt", 'a')
+        f.write(setting + "  \n")
+        f.write(f"\n Params: {params}, Model Size: {model_size_mb} MB")
+        f.write('\n')
+        f.write('\n')
+        f.close()
+
+
+
